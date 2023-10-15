@@ -1,5 +1,4 @@
 ## DeepDreaming
-DeepDream produces images bubbling with eyes, birds, blinding contours, and other things that look like they belong on the covereyeballs can only improve art
 Hello visitor, 
 we are the students of KIT college of Engineering who are creating this deepdream model as part of our internship
 #### What we are doing?
