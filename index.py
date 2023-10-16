@@ -4,26 +4,11 @@ from streamlit_lottie import st_lottie
 from PIL import Image
 import tensorflow as tf
 import numpy as np
-import matplotlib.pyplot as plt
 from dream import deep_dream
-from heatmap import generate_heatmap
+# Load InceptionV3 model
+model = tf.keras.applications.InceptionV3(weights='imagenet')
 
 st.set_page_config(page_title="Deep Dream", page_icon=":nazar_amulet:", layout="wide")
-
-# Load InceptionV3 model
-# model = tf.keras.applications.InceptionV3(weights='imagenet')
-# Define a dictionary of available models
-model_options = {
-    "InceptionV3": tf.keras.applications.InceptionV3(weights='imagenet'),
-    "ResNet50": tf.keras.applications.ResNet50(weights='imagenet')
-}
-
-# Function to load the selected model
-def load_model(model_name):
-    if model_name not in model_options:
-        return None
-    return model_options[model_name]
-
 
 def load_lottieurl(url):
     r = requests.get(url)
@@ -71,33 +56,18 @@ def first_page():
 def image_processing_page():
     st.title("Image Processing Page")
     
-    
-    # Add a selectbox to choose the model
-    selected_model = st.selectbox("Select Image Classification Model", list(model_options.keys()))
-    model = load_model(selected_model)  # Load the selected model
-    
-    
     uploaded_image = st.file_uploader("Upload an image", type=["jpg", "png", "jpeg"])
     
     if uploaded_image is not None:
         image = Image.open(uploaded_image)
-        image = np.array(image)
-        if selected_model == 'InceptionV3':
-            image = tf.image.resize(image, (299, 299))
-        elif selected_model == 'ResNet50':
-            image = tf.image.resize(image, (224, 224))
-        else:
-            st.error("Invalid model selection.")
-            return  
-        # Display uploaded image in the center with width 1/3 of screen width
+        
+        # # Display uploaded image in the center with width 1/3 of screen width
         # st.image(image, caption="Uploaded Image", use_column_width=True)
 
         # Get the layer number from the user
         num_layers = len(model.layers)
         layer_number = st.number_input(f"Enter the layer number (0 to {num_layers-1}): ", 0, num_layers-1, 0)
-        if model is not None:
-            layer_name = model.layers[layer_number].name
-            st.write(f"You selected Layer: {layer_name}")
+
         # Validate the user input
         if layer_number < 0 or layer_number >= num_layers:
             st.error(f"Invalid layer number. Please enter a number between 0 and {num_layers-1}.")
@@ -107,44 +77,13 @@ def image_processing_page():
 
             # Generate the reversed original image from the DeepDream image
             original_image = deep_dream(model, image, layer_name)
-            original_shape = original_image.size
-            image= tf.image.resize(image, original_shape)
-
-            #image = tf.image.resize(original_image.size)
-            # # Display original and dream images side by side
-            # col1, col2 = st.columns(2)
-            # with col1:
-            #     st.image(image, caption="Original Image", use_column_width=True)
-            # with col2:
-            #     st.image(original_image, caption="Dream Image", use_column_width=True)
-            input_heatmap = generate_heatmap(image, original_image)
-            output_heatmap = generate_heatmap(original_image, image)
-
+            #image= image.resize(original_image)
             # Display original and dream images side by side
-            if st.button("Generate Deep Dream Image"):
-                original_fig, original_ax = plt.subplots(figsize=(6, 6))
-                original_ax.imshow(image)
-                original_ax.set_title('Original Image')
-                original_ax.axis('off')
-
-                dream_fig, dream_ax = plt.subplots(figsize=(6, 6))
-                dream_ax.imshow(original_image)
-                dream_ax.set_title('Deep Dream Image')
-                dream_ax.axis('off')
-
-                st.pyplot(original_fig)
-                st.pyplot(dream_fig)
-
-
-                
-            # col1, col2 = st.columns(2)
-            # with col1:
-            #     # st.image(image, caption="Original Image", use_column_width=True)
-            #     st.image(original_image, caption="Original Image", use_column_width=True, format="PNG")
-            #     st.image(input_heatmap, caption="Input Heatmap", use_column_width=True, clamp=True)
-            # with col2:
-            #     st.image(original_image, caption="Dream Image", use_column_width=True)
-            #     st.image(output_heatmap, caption="Output Heatmap", use_column_width=True, clamp=True)
+            col1, col2 = st.columns(2)
+            with col1:
+                st.image(image, caption="Original Image", use_column_width=True)
+            with col2:
+                st.image(original_image, caption="Dream Image", use_column_width=True)
 
     if st.button("Back to First Page"):
         st.session_state.page = "First Page"
