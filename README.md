@@ -17,6 +17,13 @@ thus the local tunnel endpoint will be :
   34.125.156.61
 once you will enter the endpoint the project will run successfully and you can use the model😊😊
 
+#### Contents of file:
+1.final.ipynb : contains final project which can be used to run and see our model.
+2.deep_dream.ipynb : contains initial python notebook version of project that can process with two model (inceptionV3 and resnet50 but has some format error).
+3.dream.py : contains the logic for deep dream.
+4.index.py : contains streamlit frontend for our app which can process signle model.
+5.main.py : contains streamlit frontend for our app which can process two models.
+
 #### Link for project report:
 https://www.overleaf.com/read/mfjgxmsnhkpc
 
